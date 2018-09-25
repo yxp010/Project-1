@@ -52,15 +52,17 @@ var letters = [String]()
 func divideTeams(playerList: [[String: Any]]) {
     
     var allPlayers = playerList
+    let firstTeam = 0
     
     // Use a simple Bubble sort to swap all players positions.
     // Reposition the players from the shortest to tallest.
     var swapped = false
     var turn = 1
-    if allPlayers.count > 1 {
+    let leastNumberOfPlayers = 2
+    if allPlayers.count >= leastNumberOfPlayers {
         repeat {
             swapped = false
-            for i in 0...allPlayers.count - 1 - turn {
+            for i in 0..<allPlayers.count - turn {
                 if let player1 = allPlayers[i][Height] as? Double, let player2 = allPlayers[i + 1][Height] as? Double {
                     if player1 > player2 {
                         allPlayers[i...i + 1] = [allPlayers[i + 1], allPlayers[i]]
@@ -91,12 +93,13 @@ func divideTeams(playerList: [[String: Any]]) {
     
     // Create a variable named 'teamTurn', used as index in later function to iterate over the allTeams to append one player a time into one of the three teams.
     var teamTurn = 0
-    
+    turn = 1
     // This helper function is to make index back to 0 after 2, so the index should always be 0, 1, 2.
     func chageTeamTurn() {
-        teamTurn += 1
-        if teamTurn > 2 {
-            teamTurn = 0
+        teamTurn += turn
+        
+        if teamTurn > allTeams.count - 1 {
+            teamTurn = firstTeam
         }
     }
     
@@ -111,28 +114,30 @@ func divideTeams(playerList: [[String: Any]]) {
     // If after we ran this function and fromShortest remained false, next time we call this function will append players from tallest to shortest due to fromShortest is false.
     // The function needs to check every time if there is enough players in the tempGroup after it appends a player into a team becasue there might be some situations that the number of players in the original tempGroup is not evenly dividable by three teams.
     func appendPlayersFrom(temporaryGroup: [[String: Any]]) {
+        
         var tempGroup = temporaryGroup
-        while tempGroup.count > 0 {
+        
+        while tempGroup.isEmpty == false {
             if fromShortest {
-                allTeams[teamTurn].append(tempGroup.remove(at: 0))
+                allTeams[teamTurn].append(tempGroup.removeFirst())
                 chageTeamTurn()
-                if tempGroup.count > 0 {
-                    allTeams[teamTurn].append(tempGroup.remove(at: 0))
+                if tempGroup.isEmpty == false {
+                    allTeams[teamTurn].append(tempGroup.removeFirst())
                     chageTeamTurn()
-                    if tempGroup.count > 0 {
-                        allTeams[teamTurn].append(tempGroup.remove(at: 0))
+                    if tempGroup.isEmpty == false {
+                        allTeams[teamTurn].append(tempGroup.removeFirst())
                         chageTeamTurn()
                     }
                 }
                 fromShortest = false
             } else if fromShortest == false {
-                allTeams[teamTurn].append(tempGroup.remove(at: tempGroup.count - 1))
+                allTeams[teamTurn].append(tempGroup.removeLast())
                 chageTeamTurn()
-                if tempGroup.count > 0 {
-                    allTeams[teamTurn].append(tempGroup.remove(at: tempGroup.count - 1))
+                if tempGroup.isEmpty == false {
+                    allTeams[teamTurn].append(tempGroup.removeLast())
                     chageTeamTurn()
-                    if experiencedTeam.count > 0 {
-                        allTeams[teamTurn].append(tempGroup.remove(at: tempGroup.count - 1))
+                    if tempGroup.isEmpty == false {
+                        allTeams[teamTurn].append(tempGroup.removeLast())
                         chageTeamTurn()
                     }
                 }
@@ -140,11 +145,9 @@ func divideTeams(playerList: [[String: Any]]) {
             }
         }
     }
-    
     // Call appendPlayersFrom helper function twice using experiencedTeam and inexperiencedTeam respectively.
     // After this, each team in allPlayers Array will have closed average height and balanced number of experienced players.
     appendPlayersFrom(temporaryGroup: experiencedTeam)
-    
     // Since experiencedTeam has 9 players and we have three teams, the function will append players from the tallest to shortest due to fromShortest is false now.
     appendPlayersFrom(temporaryGroup: inexperiencedTeam)
     
@@ -157,10 +160,11 @@ func divideTeams(playerList: [[String: Any]]) {
     // Add all three teams' information into a new Array named teamList.
     // This array will be iterated later to print out individual letters.
     let teamList = [teamSharks, teamRaptors, teamDragons]
-
+    
     // Create a variable as a index in the for-loop when we iterate the letters Array to print out each letter.
     // Actually I do not understand why I need to append each letter into letters array, but it is a requirement. If not, I won't need this variable.
     var letterIndex = 0
+    let changeLetterIndexBy = 1
     
     // Create a nested for-loop, iterate each team in teamList and print out the individul letter for each player.
     // Letter includes guadians' name, player's name, team name, and practice date and time.
@@ -173,7 +177,7 @@ func divideTeams(playerList: [[String: Any]]) {
                 if let playerName = player[playerName] as? String, let parentsName = player[guardiansName] as? String {
                     letters.append("\(parentsName), your kid \(playerName) has been chosen to \(teamName). Please come to attend the first team team practice at \(teamPracticeTime).")
                     print(letters[letterIndex])
-                    letterIndex += 1
+                    letterIndex += changeLetterIndexBy
                 }
             }
         }
@@ -197,9 +201,6 @@ func divideTeams(playerList: [[String: Any]]) {
 }
 
 divideTeams(playerList: players)
-
-
-
 
 
 
