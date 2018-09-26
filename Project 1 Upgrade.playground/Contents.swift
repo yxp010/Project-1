@@ -52,25 +52,24 @@ var letters = [String]()
 func divideTeams(playerList: [[String: Any]]) {
     
     var allPlayers = playerList
-    let firstTeam = 0
     
     // Use a simple Bubble sort to swap all players positions.
     // Reposition the players from the shortest to tallest.
     var swapped = false
-    var turn = 1
-    let leastNumberOfPlayers = 2
-    if allPlayers.count >= leastNumberOfPlayers {
+    var numberOfTimesOfSwap = 1
+    let leastNumberOfPlayersNeededToSwap = 2
+    if allPlayers.count >= leastNumberOfPlayersNeededToSwap {
         repeat {
             swapped = false
-            for i in 0..<allPlayers.count - turn {
-                if let player1 = allPlayers[i][Height] as? Double, let player2 = allPlayers[i + 1][Height] as? Double {
+            for index in 0..<allPlayers.count - numberOfTimesOfSwap {
+                if let player1 = allPlayers[index][Height] as? Double, let player2 = allPlayers[index + 1][Height] as? Double {
                     if player1 > player2 {
-                        allPlayers[i...i + 1] = [allPlayers[i + 1], allPlayers[i]]
+                        allPlayers[index...index + 1] = [allPlayers[index + 1], allPlayers[index]]
                         swapped = true
                     }
                 }
             }
-            turn += 1
+            numberOfTimesOfSwap += 1
         } while swapped
     }
     
@@ -91,15 +90,21 @@ func divideTeams(playerList: [[String: Any]]) {
         }
     }
     
-    // Create a variable named 'teamTurn', used as index in later function to iterate over the allTeams to append one player a time into one of the three teams.
-    var teamTurn = 0
-    turn = 1
+    // Create a variable named 'currentTeamIndex', used as index in later function to iterate over the allTeams to append one player a time into one of the three teams.
+    // Create a constant 'changeToNextTeamIndex' as 1 to be used in the function 'changeTeamIndex', add 'changeToNextTeamIndex' to 'currentTeamIndex' as it moves to next teamIndex.
+    // Create a constant 'firstTeamIndex' as 0, it will be used in the function 'changeTeamIndex', asign the value of 'firstTeamIndex' to 'currentTeamIndex' when 'currentTeamIndex' exceeds the index range.
+    // Create a constant 'lastTeamIndex', it will be used in the function'changeTeamIndex', to check if the 'currentTeamIndex' is exceeds the index range.
+    var currentTeamIndex = 0
+    let changeToNextTeamIndex = 1
+    let firstTeamIndex = 0
+    let lastTeamIndex = allTeams.count - 1
+    
     // This helper function is to make index back to 0 after 2, so the index should always be 0, 1, 2.
-    func chageTeamTurn() {
-        teamTurn += turn
+    func changeTeamIndex() {
+        currentTeamIndex += changeToNextTeamIndex
         
-        if teamTurn > allTeams.count - 1 {
-            teamTurn = firstTeam
+        if currentTeamIndex > lastTeamIndex {
+            currentTeamIndex = firstTeamIndex
         }
     }
     
@@ -119,26 +124,26 @@ func divideTeams(playerList: [[String: Any]]) {
         
         while tempGroup.isEmpty == false {
             if fromShortest {
-                allTeams[teamTurn].append(tempGroup.removeFirst())
-                chageTeamTurn()
+                allTeams[currentTeamIndex].append(tempGroup.removeFirst())
+                changeTeamIndex()
                 if tempGroup.isEmpty == false {
-                    allTeams[teamTurn].append(tempGroup.removeFirst())
-                    chageTeamTurn()
+                    allTeams[currentTeamIndex].append(tempGroup.removeFirst())
+                    changeTeamIndex()
                     if tempGroup.isEmpty == false {
-                        allTeams[teamTurn].append(tempGroup.removeFirst())
-                        chageTeamTurn()
+                        allTeams[currentTeamIndex].append(tempGroup.removeFirst())
+                        changeTeamIndex()
                     }
                 }
                 fromShortest = false
             } else if fromShortest == false {
-                allTeams[teamTurn].append(tempGroup.removeLast())
-                chageTeamTurn()
+                allTeams[currentTeamIndex].append(tempGroup.removeLast())
+                changeTeamIndex()
                 if tempGroup.isEmpty == false {
-                    allTeams[teamTurn].append(tempGroup.removeLast())
-                    chageTeamTurn()
+                    allTeams[currentTeamIndex].append(tempGroup.removeLast())
+                    changeTeamIndex()
                     if tempGroup.isEmpty == false {
-                        allTeams[teamTurn].append(tempGroup.removeLast())
-                        chageTeamTurn()
+                        allTeams[currentTeamIndex].append(tempGroup.removeLast())
+                        changeTeamIndex()
                     }
                 }
                 fromShortest = true
@@ -164,7 +169,7 @@ func divideTeams(playerList: [[String: Any]]) {
     // Create a variable as a index in the for-loop when we iterate the letters Array to print out each letter.
     // Actually I do not understand why I need to append each letter into letters array, but it is a requirement. If not, I won't need this variable.
     var letterIndex = 0
-    let changeLetterIndexBy = 1
+    let changeLetterIndexByOne = 1
     
     // Create a nested for-loop, iterate each team in teamList and print out the individul letter for each player.
     // Letter includes guadians' name, player's name, team name, and practice date and time.
@@ -177,7 +182,7 @@ func divideTeams(playerList: [[String: Any]]) {
                 if let playerName = player[playerName] as? String, let parentsName = player[guardiansName] as? String {
                     letters.append("\(parentsName), your kid \(playerName) has been chosen to \(teamName). Please come to attend the first team team practice at \(teamPracticeTime).")
                     print(letters[letterIndex])
-                    letterIndex += changeLetterIndexBy
+                    letterIndex += changeLetterIndexByOne
                 }
             }
         }
